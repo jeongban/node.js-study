@@ -14,7 +14,10 @@ http.createServer(async (req, res) => {
         const data = await fs.readFile('./about.html');
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
         return res.end(data);
-      } 
+      } else if (req.url === '/users') {
+        res.writeHead(201, { 'Content-Type': 'application/json; charset=utf-8' });
+        return res.end(JSON.stringify(users));
+      }
       // /도 /about도 /users도 아니면
       try {
         const data = await fs.readFile(`.${req.url}`);
@@ -22,10 +25,49 @@ http.createServer(async (req, res) => {
       } catch (err) {
         // 주소에 해당하는 라우트를 못 찾았다는 404 Not Found error 발생
       }
+    } else if (req.method === 'POST') {
+      if (req.url === '/user') {
+        let body = '';
+        // 요청의 body를 stream 형식으로 받음
+        req.on('data', (data) => {
+          console.log(data);
+          body += data;
+        });
+        // 요청의 body를 다 받은 후 실행됨
+        return req.on('end', () => {
+          console.log('POST 본문(Body):', body);
+          const { name } = JSON.parse(body); // name = "안녕" 구조분해 할당
+          const id = Date.now(); // 현재시간 
+          users[id] = name; "{112994812938921849284 : 안녕}"
+          res.writeHead(201, { 'Content-Type': 'text/plain; charset=utf-8' });
+          res.end('ok');
+        });
+      }
+    } else if (req.method === 'PUT') {
+      if (req.url.startsWith('/user/')) {
+        const key = req.url.split('/')[2];
+        let body = '';
+        req.on('data', (data) => {
+          body += data;
+        });
+        return req.on('end', () => {
+          console.log('PUT 본문(Body):', body);
+          users[key] = JSON.parse(body).name;
+          res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+          return res.end('ok');
+        });
+      }
+    } else if (req.method === 'DELETE') {
+      if (req.url.startsWith('/user/')) {
+        const key = req.url.split('/')[2];
+        delete users[key];
+        res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+        return res.end('ok');
+      }
     }
     res.writeHead(404);
-    return res.end('NOT FOUND');    
-    }catch (err) {
+    return res.end('NOT FOUND');
+  } catch (err) {
     console.error(err);
     res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end(err.message);

@@ -1,6 +1,6 @@
 async function getUser() { // 로딩 시 사용자 가져오는 함수
     try {
-      const res = await axios.get('/users');
+      const res = await axios.get('/users'); // get -> /users
       const users = res.data;
       const list = document.getElementById('list');
       list.innerHTML = '';
@@ -48,12 +48,12 @@ async function getUser() { // 로딩 시 사용자 가져오는 함수
   // 폼 제출(submit) 시 실행
   document.getElementById('form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const name = e.target.username.value;
+    const name = e.target.username.value; // 안녕
     if (!name) {
       return alert('이름을 입력하세요');
     }
     try {
-      await axios.post('/user', { name }); // name: 홍길동
+      await axios.post('/user', { name }); // name: 안녕
       getUser();
     } catch (err) {
       console.error(err);
