@@ -49,7 +49,7 @@ const upload = multer({
 app.get('/upload', (req, res) => {
   res.sendFile(path.join(__dirname, 'multipart.html'));
 });
-app.post('/upload', upload.single('image'), (req, res) => {
+app.post('/upload', upload.array('many'), (req, res) => {
   console.log(req.file,req.body);
   res.send('ok');
 });
